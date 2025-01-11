@@ -14,39 +14,11 @@ let scrambleTimeoutID1, scrambleTimeoutID2;
 let scrambleFrequency = 1000;
 
 const rhythmPatterns = {
-    'Simple': { 
-        loopA: [1, 0, 1, 0], 
-        loopB: [0, 1, 0, 1] 
-    },
-    'Syncopated': { 
-        loopA: [1, 0, 0, 1, 0, 1, 0, 0], 
-        loopB: [0, 0, 1, 0, 1, 0, 0, 1] 
-    },
-    'Polyrhythm 3:2': { 
-        loopA: [1, 0, 0, 1, 0, 0], 
-        loopB: [1, 0, 1, 0] 
-    },
-    'Polyrhythm 4:3': { 
-        loopA: [1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0],
-        loopB: [1, 0, 0, 1, 0, 0, 1, 0, 0]
-    },
-    'West African': { 
-        loopA: [1, 0, 1, 0, 1, 0, 0, 1, 0, 1, 0, 0], 
-        loopB: [0, 1, 0, 1, 0, 0, 1, 0, 1, 0, 1, 0] 
-    },
-    'Balkan 7/8': { 
-        loopA: [1, 0, 1, 0, 1, 0, 0], 
-        loopB: [0, 1, 0, 0, 1, 1, 0] 
-    },
-    'Indian Tihai': { 
-        loopA: [1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0], 
-        loopB: [0, 1, 0, 0, 1, 0, 1, 0, 0, 1, 0, 1, 0, 0, 1] 
-    },
-    'Minimal Pulse': { 
-        loopA: [1], 
-        loopB: [1] 
-    }
-}; 1, 1, 0, 1, 0, 0], loopB: [0, 1, 0, 0, 1, 0, 1, 1] },
+    'Default Pattern': { loopA: [1, 0, 1, 0], loopB: [0, 1, 0, 1] },
+    'Syncopated': { loopA: [1, 0, 0, 1, 0, 1, 0, 0], loopB: [0, 0, 1, 0, 1, 0, 0, 1] },
+    'Polyrhythm': { loopA: [1, 0, 1, 0, 0, 1], loopB: [0, 1, 0, 1, 1, 0] },
+    'Triplet': { loopA: [1, 0, 1, 0, 1], loopB: [0, 1, 0, 1, 0] },
+    'Complex': { loopA: [1, 0, 1, 1, 0, 1, 0, 0], loopB: [0, 1, 0, 0, 1, 0, 1, 1] },
     'Minimal': { loopA: [1], loopB: [1] }
 };
 
