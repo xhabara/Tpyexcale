@@ -9,48 +9,48 @@ let rateMultiplier = 1;
 let currentPatternIndex = 0;
 let syncActive = false;
 
-let xhabarabotActive = false; // Track Xhabarabot Mode state
+let xhabarabotActive = false;
 let scrambleTimeoutID1, scrambleTimeoutID2;
-let scrambleFrequency = 1000; 
+let scrambleFrequency = 1000;
 
 const rhythmPatterns = {
     'Default Pattern': { loopA: [1, 0, 1, 0], loopB: [0, 1, 0, 1] },
     'Syncopated': { loopA: [1, 0, 0, 1, 0, 1, 0, 0], loopB: [0, 0, 1, 0, 1, 0, 0, 1] },
     'Polyrhythm': { loopA: [1, 0, 1, 0, 0, 1], loopB: [0, 1, 0, 1, 1, 0] },
     'Triplet': { loopA: [1, 0, 1, 0, 1], loopB: [0, 1, 0, 1, 0] },
+    'Complex': { loopA: [1, 0, 1, 1, 0, 1, 0, 0], loopB: [0, 1, 0, 0, 1, 0, 1, 1] },
+    'Minimal': { loopA: [1], loopB: [1] }
+};
+
+const scales = {
+    'Major': {
+        'a': 1.0, 'b': 9/8, 'c': 5/4, 'd': 3/2, 'e': 5/3, 'f': 2.0, 'g': 9/4,
+        'h': 5/2, 'i': 3.0, 'j': 10/3, 'k': 0.5, 'l': 9/16, 'm': 5/8, 'n': 3/4,
+        'o': 5/6, 'p': 0.25, 'q': 9/32, 'r': 5/16, 's': 3/8, 't': 5/12,
+        'u': 4.0, 'v': 9/2, 'w': 5.0, 'x': 6.0, 'y': 20/3, 'z': 8.0, ' ': 0
+    },
+    'Minor': {
+        'a': 1.0, 'b': 9/8, 'c': 6/5, 'd': 3/2, 'e': 8/5, 'f': 2.0, 'g': 9/4,
+        'h': 12/5, 'i': 3.0, 'j': 16/5, 'k': 0.5, 'l': 9/16, 'm': 3/5, 'n': 3/4,
+        'o': 4/5, 'p': 0.25, 'q': 9/32, 'r': 3/10, 's': 3/8, 't': 2/5,
+        'u': 4.0, 'v': 9/2, 'w': 24/5, 'x': 6.0, 'y': 32/5, 'z': 8.0, ' ': 0
+    },
+    'Pentatonic': {
+        'a': 1.0, 'b': 9/8, 'c': 5/4, 'd': 3/2, 'e': 2.0, 'f': 10/8, 'g': 9/4,
+        'h': 5/2, 'i': 3.0, 'j': 4.0, 'k': 0.5, 'l': 9/16, 'm': 5/8, 'n': 3/4,
+        'o': 1.0, 'p': 0.25, 'q': 9/32, 'r': 5/16, 's': 3/8, 't': 0.5,
+        'u': 4.0, 'v': 9/2, 'w': 5.0, 'x': 6.0, 'y': 8.0, 'z': 10.0, ' ': 0
+    },
+    'Chromatic': {
+        'a': 1.0, 'b': 16/15, 'c': 9/8, 'd': 6/5, 'e': 5/4, 'f': 4/3, 'g': 45/32,
+        'h': 3/2, 'i': 8/5, 'j': 5/3, 'k': 9/5, 'l': 15/8, 'm': 2.0, 'n': 0.5,
+        'o': 8/15, 'p': 4/5, 'q': 3/5, 'r': 2/3, 's': 32/45, 't': 3/4,
+        'u': 4.0, 'v': 9/2, 'w': 5.0, 'x': 6.0, 'y': 7.0, 'z': 8.0, ' ': 0
+    }
 };
 
 let activePattern = 'Default Pattern';
-
-const rateMapping = {
-    'a': 1.0,       // Root (1st Octave)
-    'b': 9 / 8,     // Major Second (1st Octave)
-    'c': 5 / 4,     // Major Third (1st Octave)
-    'd': 3 / 2,     // Perfect Fifth (1st Octave)
-    'e': 5 / 3,     // Major Sixth (1st Octave)
-    'f': 2.0,       // Root (2nd Octave)
-    'g': 9 / 4,     // Major Second (2nd Octave)
-    'h': 5 / 2,     // Major Third (2nd Octave)
-    'i': 3.0,       // Perfect Fifth (2nd Octave)
-    'j': 10 / 3,    // Major Sixth (2nd Octave)
-    'k': 0.5,       // Root (Lower 1st Octave)
-    'l': 9 / 16,    // Major Second (Lower 1st Octave)
-    'm': 5 / 8,     // Major Third (Lower 1st Octave)
-    'n': 3 / 4,     // Perfect Fifth (Lower 1st Octave)
-    'o': 5 / 6,     // Major Sixth (Lower 1st Octave)
-    'p': 0.25,      // Root (Lower 2nd Octave)
-    'q': 9 / 32,    // Major Second (Lower 2nd Octave)
-    'r': 5 / 16,    // Major Third (Lower 2nd Octave)
-    's': 3 / 8,     // Perfect Fifth (Lower 2nd Octave)
-    't': 5 / 12,    // Major Sixth (Lower 2nd Octave)
-    'u': 4.0,       // Root (3rd Octave)
-    'v': 9 / 2,     // Major Second (3rd Octave)
-    'w': 5.0,       // Major Third (3rd Octave)
-    'x': 6.0,       // Perfect Fifth (3rd Octave)
-    'y': 20 / 3,    // Major Sixth (3rd Octave)
-    'z': 8.0,       // Root (4th Octave)
-    ' ': 0          // Space as a break/gap
-};
+let activeScale = 'Major';
 
 function setupXhabarabotMode() {
     const xhabarabotButton = document.getElementById('xhabarabotButton');
@@ -59,6 +59,11 @@ function setupXhabarabotMode() {
     scrambleFrequencySlider.addEventListener('input', () => {
         scrambleFrequency = parseInt(scrambleFrequencySlider.value, 10);
         console.log(`Scramble frequency set to: ${scrambleFrequency}ms`);
+        
+        if (xhabarabotActive) {
+            stopScrambling();
+            startScrambling();
+        }
     });
 
     xhabarabotButton.addEventListener('click', () => {
@@ -97,13 +102,11 @@ function stopScrambling() {
 function scrambleLetters1() {
     const input = document.getElementById('lettersInput1');
     if (input) input.value = input.value.split('').sort(() => Math.random() - 0.5).join('');
-    console.log('Loop A scrambled.');
 }
 
 function scrambleLetters2() {
     const input = document.getElementById('lettersInput2');
     if (input) input.value = input.value.split('').sort(() => Math.random() - 0.5).join('');
-    console.log('Loop B scrambled.');
 }
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -117,16 +120,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
     gainA.connect(panA);
     panA.connect(gainMaster);
-
     gainB.connect(panB);
     panB.connect(gainMaster);
-
     gainMaster.connect(audioContext.destination);
 
     gainA.gain.value = 0.4;
     gainB.gain.value = 0.4;
     gainMaster.gain.value = 0.5;
 
+    setupScaleDropdown();
+    setupPatternDropdown();
     setupRecording();
     setupEventListeners();
     setupFileUploads();
@@ -149,8 +152,7 @@ function playLoop1() {
         return;
     }
 
-    const finalRate = (rateMapping[currentChar] || 1) * rateMultiplier;
-
+    const finalRate = (scales[activeScale][currentChar] || 1) * rateMultiplier;
     if (sound1 && finalRate > 0) {
         const source = audioContext.createBufferSource();
         source.buffer = sound1;
@@ -161,9 +163,13 @@ function playLoop1() {
 
     const pattern = rhythmPatterns[activePattern].loopA;
     const interval = (60000 / (120 * tempoMultiplier)) * pattern[currentPatternIndex % pattern.length];
-
     timeoutID1 = setTimeout(playLoop1, interval);
     currentPatternIndex++;
+
+    if (syncActive && loopPlaying2) {
+        clearTimeout(timeoutID2);
+        playLoop2();
+    }
 }
 
 function playLoop2() {
@@ -181,8 +187,7 @@ function playLoop2() {
         return;
     }
 
-    const finalRate = (rateMapping[currentChar] || 1) * rateMultiplier;
-
+    const finalRate = (scales[activeScale][currentChar] || 1) * rateMultiplier;
     if (sound2 && finalRate > 0) {
         const source = audioContext.createBufferSource();
         source.buffer = sound2;
@@ -193,9 +198,13 @@ function playLoop2() {
 
     const pattern = rhythmPatterns[activePattern].loopB;
     const interval = (60000 / (120 * tempoMultiplier)) * pattern[currentPatternIndex % pattern.length];
-
     timeoutID2 = setTimeout(playLoop2, interval);
     currentPatternIndex++;
+
+    if (syncActive && loopPlaying1) {
+        clearTimeout(timeoutID1);
+        playLoop1();
+    }
 }
 
 function setupEventListeners() {
@@ -203,6 +212,7 @@ function setupEventListeners() {
         loopPlaying1 = !loopPlaying1;
         const loopButton1 = document.getElementById('loopButton1');
         if (loopPlaying1) {
+            if (syncActive) currentPatternIndex = 0;
             playLoop1();
             loopButton1.textContent = "STOP LOOP A";
             loopButton1.style.backgroundColor = "#0F0";
@@ -217,6 +227,7 @@ function setupEventListeners() {
         loopPlaying2 = !loopPlaying2;
         const loopButton2 = document.getElementById('loopButton2');
         if (loopPlaying2) {
+            if (syncActive) currentPatternIndex = 0;
             playLoop2();
             loopButton2.textContent = "STOP LOOP B";
             loopButton2.style.backgroundColor = "#0F0";
@@ -234,6 +245,12 @@ function setupEventListeners() {
 
         if (syncActive) {
             currentPatternIndex = 0;
+            if (loopPlaying1 && loopPlaying2) {
+                clearTimeout(timeoutID1);
+                clearTimeout(timeoutID2);
+                playLoop1();
+                playLoop2();
+            }
         }
     });
 }
@@ -262,18 +279,60 @@ function setupPanSliders() {
 
     panSlider1.addEventListener('input', () => {
         panA.pan.value = parseFloat(panSlider1.value);
-        console.log(`Pan A set to: ${panA.pan.value}`);
     });
 
     panSlider2.addEventListener('input', () => {
         panB.pan.value = parseFloat(panSlider2.value);
-        console.log(`Pan B set to: ${panB.pan.value}`);
+    });
+}
+
+function setupScaleDropdown() {
+    const scaleSelect = document.getElementById('scaleSelect');
+    for (const scaleName in scales) {
+        const option = document.createElement('option');
+        option.value = scaleName;
+        option.textContent = scaleName;
+        scaleSelect.appendChild(option);
+    }
+    scaleSelect.value = activeScale;
+    scaleSelect.addEventListener('change', () => {
+        activeScale = scaleSelect.value;
+        console.log(`Scale set to: ${activeScale}`);
+    });
+}
+
+function setupPatternDropdown() {
+    const patternSelect = document.getElementById('patternSelect');
+    for (const patternName in rhythmPatterns) {
+        const option = document.createElement('option');
+        option.value = patternName;
+        option.textContent = patternName;
+        patternSelect.appendChild(option);
+    }
+    patternSelect.value = activePattern;
+    patternSelect.addEventListener('change', () => {
+        activePattern = patternSelect.value;
+        console.log(`Rhythm pattern set to: ${activePattern}`);
+        if (syncActive) {
+            currentPatternIndex = 0;
+            if (loopPlaying1 && loopPlaying2) {
+                clearTimeout(timeoutID1);
+                clearTimeout(timeoutID2);
+                playLoop1();
+                playLoop2();
+            }
+        }
     });
 }
 
 function setupRecording() {
     const mediaStreamDestination = audioContext.createMediaStreamDestination();
+    const mediaStreamDestinationA = audioContext.createMediaStreamDestination();
+    const mediaStreamDestinationB = audioContext.createMediaStreamDestination();
+
     gainMaster.connect(mediaStreamDestination);
+    gainA.connect(mediaStreamDestinationA);
+    gainB.connect(mediaStreamDestinationB);
 
     const saveButton = document.getElementById('saveButton');
     const saveStemsButton = document.getElementById('saveStemsButton');
@@ -304,6 +363,43 @@ function setupRecording() {
             saveButton.textContent = 'RECORD MIX';
             saveButton.style.backgroundColor = '#FF851B';
         }
+    });
+
+    saveStemsButton.addEventListener('click', async () => {
+        const recordDuration = 1500; // 1.5 seconds
+        saveStemsButton.style.backgroundColor = '#FF0000';
+        saveStemsButton.textContent = 'Recording Stems...';
+        
+        try {
+            await Promise.all([
+                recordStem(mediaStreamDestinationA.stream, 'stem_a', recordDuration),
+                recordStem(mediaStreamDestinationB.stream, 'stem_b', recordDuration)
+            ]);
+        } finally {
+            saveStemsButton.style.backgroundColor = '#FF851B';
+            saveStemsButton.textContent = 'RECORD STEMS';
+        }
+    });
+}
+
+async function recordStem(stream, stemName, duration) {
+    return new Promise((resolve) => {
+        const mediaRecorder = new MediaRecorder(stream, { mimeType: 'audio/webm' });
+        const chunks = [];
+
+        mediaRecorder.addEventListener('dataavailable', (e) => {
+            if (e.data.size > 0) chunks.push(e.data);
+        });
+
+        mediaRecorder.addEventListener('stop', async () => {
+            const audioBlob = new Blob(chunks, { type: 'audio/webm' });
+            const wavBlob = await convertToWav(audioBlob);
+            downloadBlob(wavBlob, `${stemName}_${new Date().toISOString()}.wav`);
+            resolve();
+        });
+
+        mediaRecorder.start();
+        setTimeout(() => mediaRecorder.stop(), duration);
     });
 }
 
@@ -365,4 +461,15 @@ function downloadBlob(blob, filename) {
     link.click();
     document.body.removeChild(link);
     URL.revokeObjectURL(url);
+}
+
+function resetLoop(loopNumber) {
+    if (loopNumber === 1) {
+        const input = document.getElementById('lettersInput1');
+        if (input) input.value = '';
+    } else if (loopNumber === 2) {
+        const input = document.getElementById('lettersInput2');
+        if (input) input.value = '';
+    }
+    currentPatternIndex = 0;
 }
