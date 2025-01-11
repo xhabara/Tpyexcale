@@ -7,7 +7,6 @@ let timeoutID1, timeoutID2;
 let tempoMultiplier = 1;
 let rateMultiplier = 1;
 let currentPatternIndex = 0;
-let syncActive = false;
 
 let xhabarabotActive = false;
 let scrambleTimeoutID1, scrambleTimeoutID2;
@@ -72,7 +71,6 @@ const scales = {
         'u': 4.0, 'v': 35/8, 'w': 5.0, 'x': 21/4, 'y': 6.0, 'z': 7.0, ' ': 0
     }
 };
-};
 
 let activePattern = 'Default Pattern';
 let activeScale = 'Major';
@@ -107,12 +105,10 @@ function setupXhabarabotMode() {
 function startScrambling() {
     scrambleTimeoutID1 = setInterval(() => {
         scrambleLetters1();
-        if (syncActive) currentPatternIndex = 0;
     }, scrambleFrequency);
 
     scrambleTimeoutID2 = setInterval(() => {
         scrambleLetters2();
-        if (syncActive) currentPatternIndex = 0;
     }, scrambleFrequency);
 
     console.log('Xhabarabot Mode activated.');
@@ -197,9 +193,7 @@ function playLoop1() {
 
     const interval = (60000 / (120 * tempoMultiplier)) * pattern[patternIndex];
     timeoutID1 = setTimeout(() => {
-        if (!syncActive || !loopPlaying2) {
-            currentPatternIndex++;
-        }
+        currentPatternIndex++;
         playLoop1();
     }, interval);
 }
@@ -239,11 +233,7 @@ function playLoop2() {
 
     const interval = (60000 / (120 * tempoMultiplier)) * pattern[patternIndex];
     timeoutID2 = setTimeout(() => {
-        if (syncActive && loopPlaying1) {
-            // Let Loop A control the pattern index
-        } else {
-            currentPatternIndex++;
-        }
+        currentPatternIndex++;
         playLoop2();
     }, interval);
 }
@@ -253,7 +243,6 @@ function setupEventListeners() {
         loopPlaying1 = !loopPlaying1;
         const loopButton1 = document.getElementById('loopButton1');
         if (loopPlaying1) {
-            if (syncActive) currentPatternIndex = 0;
             playLoop1();
             loopButton1.textContent = "STOP LOOP A";
             loopButton1.style.backgroundColor = "#0F0";
@@ -268,7 +257,6 @@ function setupEventListeners() {
         loopPlaying2 = !loopPlaying2;
         const loopButton2 = document.getElementById('loopButton2');
         if (loopPlaying2) {
-            if (syncActive) currentPatternIndex = 0;
             playLoop2();
             loopButton2.textContent = "STOP LOOP B";
             loopButton2.style.backgroundColor = "#0F0";
@@ -278,60 +266,6 @@ function setupEventListeners() {
             loopButton2.style.backgroundColor = "#111";
         }
     });
-
-    document.getElementById('syncButton').addEventListener('click', () => {
-        syncActive = !syncActive;
-        const syncButton = document.getElementById('syncButton');
-        syncButton.style.backgroundColor = syncActive ? "#0F0" : "#111";
-
-        if (syncActive) {
-            // Reset both loops to start fresh
-            const baseInterval = 60000 / (120 * tempoMultiplier);
-            const lettersInput1 = document.getElementById('lettersInput1').value;
-            const lettersInput2 = document.getElementById('lettersInput2').value;
-            
-            // Only proceed if we have both loops playing and letters input
-            if (loopPlaying1 && loopPlaying2 && lettersInput1 && lettersInput2) {
-                // Stop current playback
-                clearTimeout(timeoutID1);
-                clearTimeout(timeoutID2);
-                
-                // Calculate pattern cycle lengths
-                const pattern = rhythmPatterns[activePattern];
-                const cycleLength = Math.max(
-                    pattern.loopA.length * lettersInput1.length,
-                    pattern.loopB.length * lettersInput2.length
-                );
-                
-                // Reset pattern index at a musically appropriate point
-                currentPatternIndex = 0;
-                
-                // Restart both loops with proper timing
-                const startTime = audioContext.currentTime + 0.1; // Small delay for scheduling
-                
-                if (loopPlaying1) {
-                    setTimeout(() => {
-                        playLoop1();
-                    }, 100);
-                }
-                
-                if (loopPlaying2) {
-                    setTimeout(() => {
-                        playLoop2();
-                    }, 100);
-                }
-            }
-        }
-    });
-    
-    // Helper function to calculate LCM
-    function calculateLCM(a, b) {
-        return Math.abs((a * b) / calculateGCD(a, b));
-    }
-    
-    function calculateGCD(a, b) {
-        return b === 0 ? a : calculateGCD(b, a % b);
-    }
 }
 
 function setupFileUploads() {
@@ -392,14 +326,12 @@ function setupPatternDropdown() {
     patternSelect.addEventListener('change', () => {
         activePattern = patternSelect.value;
         console.log(`Rhythm pattern set to: ${activePattern}`);
-        if (syncActive) {
+        if (loopPlaying1 && loopPlaying2) {
             currentPatternIndex = 0;
-            if (loopPlaying1 && loopPlaying2) {
-                clearTimeout(timeoutID1);
-                clearTimeout(timeoutID2);
-                playLoop1();
-                playLoop2();
-            }
+            clearTimeout(timeoutID1);
+            clearTimeout(timeoutID2);
+            playLoop1();
+            playLoop2();
         }
     });
 }
@@ -562,7 +494,6 @@ function writeString(view, offset, string) {
     for (let i = 0; i < string.length; i++) {
         view.setUint8(offset + i, string.charCodeAt(i));
     }
-}
 
 function downloadBlob(blob, filename) {
     const url = URL.createObjectURL(blob);
