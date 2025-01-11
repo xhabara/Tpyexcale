@@ -238,21 +238,68 @@ function setupEventListeners() {
         }
     });
 
+    let syncCountdown = null;
+    let syncScheduled = false;
+
     document.getElementById('syncButton').addEventListener('click', () => {
         syncActive = !syncActive;
         const syncButton = document.getElementById('syncButton');
         syncButton.style.backgroundColor = syncActive ? "#0F0" : "#111";
 
         if (syncActive) {
-            currentPatternIndex = 0;
-            if (loopPlaying1 && loopPlaying2) {
-                clearTimeout(timeoutID1);
-                clearTimeout(timeoutID2);
-                playLoop1();
-                playLoop2();
+            // Calculate the total length of both patterns
+            const patternA = rhythmPatterns[activePattern].loopA;
+            const patternB = rhythmPatterns[activePattern].loopB;
+            const patternALength = patternA.length;
+            const patternBLength = patternB.length;
+            
+            // Calculate the least common multiple of pattern lengths
+            const lcm = calculateLCM(patternALength, patternBLength);
+            
+            // Wait for current pattern to complete before syncing
+            if (loopPlaying1 || loopPlaying2) {
+                if (!syncScheduled) {
+                    syncScheduled = true;
+                    const remainingSteps = lcm - (currentPatternIndex % lcm);
+                    const baseInterval = 60000 / (120 * tempoMultiplier);
+                    
+                    // Schedule the sync after current pattern completes
+                    setTimeout(() => {
+                        currentPatternIndex = 0;
+                        clearTimeout(timeoutID1);
+                        clearTimeout(timeoutID2);
+                        
+                        // Add a count-in
+                        let count = 4;
+                        syncCountdown = setInterval(() => {
+                            if (count > 0) {
+                                console.log(`Count in: ${count}`);
+                                count--;
+                            } else {
+                                clearInterval(syncCountdown);
+                                if (loopPlaying1) playLoop1();
+                                if (loopPlaying2) playLoop2();
+                                syncScheduled = false;
+                            }
+                        }, baseInterval);
+                    }, remainingSteps * baseInterval);
+                }
             }
+        } else {
+            // Clean up sync-related timers
+            if (syncCountdown) clearInterval(syncCountdown);
+            syncScheduled = false;
         }
     });
+    
+    // Helper function to calculate LCM
+    function calculateLCM(a, b) {
+        return Math.abs((a * b) / calculateGCD(a, b));
+    }
+    
+    function calculateGCD(a, b) {
+        return b === 0 ? a : calculateGCD(b, a % b);
+    }
 }
 
 function setupFileUploads() {
@@ -338,7 +385,12 @@ function setupRecording() {
     const saveStemsButton = document.getElementById('saveStemsButton');
 
     let mediaRecorder = null;
+    let stemRecorderA = null;
+    let stemRecorderB = null;
     let recordedChunks = [];
+    let recordedChunksA = [];
+    let recordedChunksB = [];
+    let isRecordingStems = false;
 
     saveButton.addEventListener('click', () => {
         if (!mediaRecorder || mediaRecorder.state === 'inactive') {
@@ -365,19 +417,47 @@ function setupRecording() {
         }
     });
 
-    saveStemsButton.addEventListener('click', async () => {
-        const recordDuration = 1500; // 1.5 seconds
-        saveStemsButton.style.backgroundColor = '#FF0000';
-        saveStemsButton.textContent = 'Recording Stems...';
-        
-        try {
-            await Promise.all([
-                recordStem(mediaStreamDestinationA.stream, 'stem_a', recordDuration),
-                recordStem(mediaStreamDestinationB.stream, 'stem_b', recordDuration)
-            ]);
-        } finally {
-            saveStemsButton.style.backgroundColor = '#FF851B';
+    saveStemsButton.addEventListener('click', () => {
+        if (!isRecordingStems) {
+            // Start recording stems
+            isRecordingStems = true;
+            recordedChunksA = [];
+            recordedChunksB = [];
+
+            stemRecorderA = new MediaRecorder(mediaStreamDestinationA.stream, { mimeType: 'audio/webm' });
+            stemRecorderB = new MediaRecorder(mediaStreamDestinationB.stream, { mimeType: 'audio/webm' });
+
+            stemRecorderA.addEventListener('dataavailable', (e) => {
+                if (e.data.size > 0) recordedChunksA.push(e.data);
+            });
+
+            stemRecorderB.addEventListener('dataavailable', (e) => {
+                if (e.data.size > 0) recordedChunksB.push(e.data);
+            });
+
+            stemRecorderA.addEventListener('stop', async () => {
+                const audioBlob = new Blob(recordedChunksA, { type: 'audio/webm' });
+                const wavBlob = await convertToWav(audioBlob);
+                downloadBlob(wavBlob, `stem_a_${new Date().toISOString()}.wav`);
+            });
+
+            stemRecorderB.addEventListener('stop', async () => {
+                const audioBlob = new Blob(recordedChunksB, { type: 'audio/webm' });
+                const wavBlob = await convertToWav(audioBlob);
+                downloadBlob(wavBlob, `stem_b_${new Date().toISOString()}.wav`);
+            });
+
+            stemRecorderA.start();
+            stemRecorderB.start();
+            saveStemsButton.textContent = 'STOP STEM RECORDING';
+            saveStemsButton.style.backgroundColor = '#FF0000';
+        } else {
+            // Stop recording stems
+            stemRecorderA.stop();
+            stemRecorderB.stop();
+            isRecordingStems = false;
             saveStemsButton.textContent = 'RECORD STEMS';
+            saveStemsButton.style.backgroundColor = '#FF851B';
         }
     });
 }
