@@ -1,9 +1,4 @@
-function setupEventListeners() {
-    document.getElementById('loopButton1').addEventListener('click', () => {
-        loopPlaying1 = !loopPlaying1;
-        const loopButton1 = document.getElementById('loopButton1');
-        if (loopPlaying1) {
-            playlet audioContext;
+let audioContext;
 let sound1, sound2;
 let gainA, gainB, gainMaster, panA, panB;
 let loopPlaying1 = false, loopPlaying2 = false;
@@ -12,7 +7,6 @@ let timeoutID1, timeoutID2;
 let tempoMultiplier = 1;
 let rateMultiplier = 1;
 let currentPatternIndex = 0;
-let syncActive = false;
 
 let xhabarabotActive = false;
 let scrambleTimeoutID1, scrambleTimeoutID2;
@@ -52,7 +46,6 @@ const rhythmPatterns = {
         loopB: [1] 
     }
 };
-};
 
 const scales = {
     'Major': {
@@ -84,23 +77,10 @@ const scales = {
         'h': 2.0, 'i': 9/4, 'j': 12/5, 'k': 0.5, 'l': 9/16, 'm': 3/5, 'n': 2/3,
         'o': 3/4, 'p': 0.25, 'q': 9/32, 'r': 3/10, 's': 1/3, 't': 3/8,
         'u': 4.0, 'v': 9/2, 'w': 24/5, 'x': 8/3, 'y': 3.0, 'z': 18/5, ' ': 0
-    },
-    'Chinese Pentatonic': {
-        'a': 1.0, 'b': 9/8, 'c': 5/4, 'd': 3/2, 'e': 5/3, 'f': 2.0, 'g': 9/4,
-        'h': 5/2, 'i': 3.0, 'j': 10/3, 'k': 0.5, 'l': 9/16, 'm': 5/8, 'n': 3/4,
-        'o': 5/6, 'p': 0.25, 'q': 9/32, 'r': 5/16, 's': 3/8, 't': 5/12,
-        'u': 4.0, 'v': 9/2, 'w': 5.0, 'x': 6.0, 'y': 20/3, 'z': 8.0, ' ': 0
-    },
-    'African Rhythmic': {
-        'a': 1.0, 'b': 1.125, 'c': 1.25, 'd': 1.375, 'e': 1.5, 'f': 1.625, 'g': 1.75,
-        'h': 2.0, 'i': 2.25, 'j': 2.5, 'k': 0.5, 'l': 0.5625, 'm': 0.625, 'n': 0.6875,
-        'o': 0.75, 'p': 0.25, 'q': 0.28125, 'r': 0.3125, 's': 0.34375, 't': 0.375,
-        'u': 4.0, 'v': 4.5, 'w': 5.0, 'x': 5.5, 'y': 6.0, 'z': 7.0, ' ': 0
     }
 };
-};
 
-let activePattern = 'Default Pattern';
+let activePattern = 'Simple';
 let activeScale = 'Major';
 
 function setupXhabarabotMode() {
@@ -109,8 +89,6 @@ function setupXhabarabotMode() {
 
     scrambleFrequencySlider.addEventListener('input', () => {
         scrambleFrequency = parseInt(scrambleFrequencySlider.value, 10);
-        console.log(`Scramble frequency set to: ${scrambleFrequency}ms`);
-        
         if (xhabarabotActive) {
             stopScrambling();
             startScrambling();
@@ -133,21 +111,18 @@ function setupXhabarabotMode() {
 function startScrambling() {
     scrambleTimeoutID1 = setInterval(() => {
         scrambleLetters1();
-        if (syncActive) currentPatternIndex = 0;
+        if (loopPlaying1) currentPatternIndex = 0;
     }, scrambleFrequency);
 
     scrambleTimeoutID2 = setInterval(() => {
         scrambleLetters2();
-        if (syncActive) currentPatternIndex = 0;
+        if (loopPlaying2) currentPatternIndex = 0;
     }, scrambleFrequency);
-
-    console.log('Xhabarabot Mode activated.');
 }
 
 function stopScrambling() {
     clearInterval(scrambleTimeoutID1);
     clearInterval(scrambleTimeoutID2);
-    console.log('Xhabarabot Mode deactivated.');
 }
 
 function scrambleLetters1() {
@@ -199,7 +174,6 @@ function playLoop1() {
     const letterIndex = Math.floor(currentPatternIndex / pattern.length) % input.length;
     const currentChar = input[letterIndex];
 
-    // Skip spaces with proper timing
     if (currentChar === ' ') {
         const interval = (60000 / (120 * tempoMultiplier)) * pattern[patternIndex];
         timeoutID1 = setTimeout(() => {
@@ -209,7 +183,6 @@ function playLoop1() {
         return;
     }
 
-    // Only play sound if pattern has a beat at this position
     if (pattern[patternIndex]) {
         const finalRate = (scales[activeScale][currentChar] || 1) * rateMultiplier;
         if (sound1 && finalRate > 0) {
@@ -223,9 +196,7 @@ function playLoop1() {
 
     const interval = (60000 / (120 * tempoMultiplier)) * pattern[patternIndex];
     timeoutID1 = setTimeout(() => {
-        if (!syncActive || !loopPlaying2) {
-            currentPatternIndex++;
-        }
+        currentPatternIndex++;
         playLoop1();
     }, interval);
 }
@@ -241,7 +212,6 @@ function playLoop2() {
     const letterIndex = Math.floor(currentPatternIndex / pattern.length) % input.length;
     const currentChar = input[letterIndex];
 
-    // Skip spaces with proper timing
     if (currentChar === ' ') {
         const interval = (60000 / (120 * tempoMultiplier)) * pattern[patternIndex];
         timeoutID2 = setTimeout(() => {
@@ -251,7 +221,6 @@ function playLoop2() {
         return;
     }
 
-    // Only play sound if pattern has a beat at this position
     if (pattern[patternIndex]) {
         const finalRate = (scales[activeScale][currentChar] || 1) * rateMultiplier;
         if (sound2 && finalRate > 0) {
@@ -265,11 +234,7 @@ function playLoop2() {
 
     const interval = (60000 / (120 * tempoMultiplier)) * pattern[patternIndex];
     timeoutID2 = setTimeout(() => {
-        if (syncActive && loopPlaying1) {
-            // Let Loop A control the pattern index
-        } else {
-            currentPatternIndex++;
-        }
+        currentPatternIndex++;
         playLoop2();
     }, interval);
 }
@@ -279,10 +244,10 @@ function setupEventListeners() {
         loopPlaying1 = !loopPlaying1;
         const loopButton1 = document.getElementById('loopButton1');
         if (loopPlaying1) {
-            if (syncActive) currentPatternIndex = 0;
+            currentPatternIndex = 0;
             playLoop1();
             loopButton1.textContent = "STOP LOOP A";
-            loopButton1.style.backgroundColor = "#0F0";
+            loopButton1.style.backgroundColor = "#FF0000";
         } else {
             clearTimeout(timeoutID1);
             loopButton1.textContent = "PLAY LOOP A";
@@ -294,70 +259,16 @@ function setupEventListeners() {
         loopPlaying2 = !loopPlaying2;
         const loopButton2 = document.getElementById('loopButton2');
         if (loopPlaying2) {
-            if (syncActive) currentPatternIndex = 0;
+            currentPatternIndex = 0;
             playLoop2();
             loopButton2.textContent = "STOP LOOP B";
-            loopButton2.style.backgroundColor = "#0F0";
+            loopButton2.style.backgroundColor = "#FF0000";
         } else {
             clearTimeout(timeoutID2);
             loopButton2.textContent = "PLAY LOOP B";
             loopButton2.style.backgroundColor = "#111";
         }
     });
-
-    document.getElementById('syncButton').addEventListener('click', () => {
-        syncActive = !syncActive;
-        const syncButton = document.getElementById('syncButton');
-        syncButton.style.backgroundColor = syncActive ? "#0F0" : "#111";
-
-        if (syncActive) {
-            // Reset both loops to start fresh
-            const baseInterval = 60000 / (120 * tempoMultiplier);
-            const lettersInput1 = document.getElementById('lettersInput1').value;
-            const lettersInput2 = document.getElementById('lettersInput2').value;
-            
-            // Only proceed if we have both loops playing and letters input
-            if (loopPlaying1 && loopPlaying2 && lettersInput1 && lettersInput2) {
-                // Stop current playback
-                clearTimeout(timeoutID1);
-                clearTimeout(timeoutID2);
-                
-                // Calculate pattern cycle lengths
-                const pattern = rhythmPatterns[activePattern];
-                const cycleLength = Math.max(
-                    pattern.loopA.length * lettersInput1.length,
-                    pattern.loopB.length * lettersInput2.length
-                );
-                
-                // Reset pattern index at a musically appropriate point
-                currentPatternIndex = 0;
-                
-                // Restart both loops with proper timing
-                const startTime = audioContext.currentTime + 0.1; // Small delay for scheduling
-                
-                if (loopPlaying1) {
-                    setTimeout(() => {
-                        playLoop1();
-                    }, 100);
-                }
-                
-                if (loopPlaying2) {
-                    setTimeout(() => {
-                        playLoop2();
-                    }, 100);
-                }
-            }
-        }
-    });
-    
-    // Helper function to calculate LCM
-    function calculateLCM(a, b) {
-        return Math.abs((a * b) / calculateGCD(a, b));
-    }
-    
-    function calculateGCD(a, b) {
-        return b === 0 ? a : calculateGCD(b, a % b);
-    }
 }
 
 function setupFileUploads() {
@@ -402,7 +313,6 @@ function setupScaleDropdown() {
     scaleSelect.value = activeScale;
     scaleSelect.addEventListener('change', () => {
         activeScale = scaleSelect.value;
-        console.log(`Scale set to: ${activeScale}`);
     });
 }
 
@@ -417,16 +327,7 @@ function setupPatternDropdown() {
     patternSelect.value = activePattern;
     patternSelect.addEventListener('change', () => {
         activePattern = patternSelect.value;
-        console.log(`Rhythm pattern set to: ${activePattern}`);
-        if (syncActive) {
-            currentPatternIndex = 0;
-            if (loopPlaying1 && loopPlaying2) {
-                clearTimeout(timeoutID1);
-                clearTimeout(timeoutID2);
-                playLoop1();
-                playLoop2();
-            }
-        }
+        currentPatternIndex = 0;
     });
 }
 
@@ -517,27 +418,6 @@ function setupRecording() {
             saveStemsButton.textContent = 'RECORD STEMS';
             saveStemsButton.style.backgroundColor = '#FF851B';
         }
-    });
-}
-
-async function recordStem(stream, stemName, duration) {
-    return new Promise((resolve) => {
-        const mediaRecorder = new MediaRecorder(stream, { mimeType: 'audio/webm' });
-        const chunks = [];
-
-        mediaRecorder.addEventListener('dataavailable', (e) => {
-            if (e.data.size > 0) chunks.push(e.data);
-        });
-
-        mediaRecorder.addEventListener('stop', async () => {
-            const audioBlob = new Blob(chunks, { type: 'audio/webm' });
-            const wavBlob = await convertToWav(audioBlob);
-            downloadBlob(wavBlob, `${stemName}_${new Date().toISOString()}.wav`);
-            resolve();
-        });
-
-        mediaRecorder.start();
-        setTimeout(() => mediaRecorder.stop(), duration);
     });
 }
 
