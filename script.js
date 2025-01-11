@@ -23,52 +23,52 @@ const rhythmPatterns = {
 
 const scales = {
     'Major': {
-        'a': 1.0, 'b': 9/8, 'c': 5/4, 'd': 3/2, 'e': 5/3, 'f': 2.0, 'g': 9/4,
-        'h': 5/2, 'i': 3.0, 'j': 10/3, 'k': 0.5, 'l': 9/16, 'm': 5/8, 'n': 3/4,
-        'o': 5/6, 'p': 0.25, 'q': 9/32, 'r': 5/16, 's': 3/8, 't': 5/12,
-        'u': 4.0, 'v': 9/2, 'w': 5.0, 'x': 6.0, 'y': 20/3, 'z': 8.0, ' ': 0
+        'a': 1.0, 'b': 9 / 8, 'c': 5 / 4, 'd': 3 / 2, 'e': 5 / 3, 'f': 2.0, 'g': 9 / 4,
+        'h': 5 / 2, 'i': 3.0, 'j': 10 / 3, 'k': 0.5, 'l': 9 / 16, 'm': 5 / 8, 'n': 3 / 4,
+        'o': 5 / 6, 'p': 0.25, 'q': 9 / 32, 'r': 5 / 16, 's': 3 / 8, 't': 5 / 12,
+        'u': 4.0, 'v': 9 / 2, 'w': 5.0, 'x': 6.0, 'y': 20 / 3, 'z': 8.0, ' ': 0
     },
     'Minor': {
-        'a': 1.0, 'b': 9/8, 'c': 6/5, 'd': 3/2, 'e': 8/5, 'f': 2.0, 'g': 9/4,
-        'h': 12/5, 'i': 3.0, 'j': 16/5, 'k': 0.5, 'l': 9/16, 'm': 3/5, 'n': 3/4,
-        'o': 4/5, 'p': 0.25, 'q': 9/32, 'r': 3/10, 's': 3/8, 't': 2/5,
-        'u': 4.0, 'v': 9/2, 'w': 24/5, 'x': 6.0, 'y': 32/5, 'z': 8.0, ' ': 0
+        'a': 1.0, 'b': 9 / 8, 'c': 6 / 5, 'd': 3 / 2, 'e': 8 / 5, 'f': 2.0, 'g': 9 / 4,
+        'h': 12 / 5, 'i': 3.0, 'j': 16 / 5, 'k': 0.5, 'l': 9 / 16, 'm': 3 / 5, 'n': 3 / 4,
+        'o': 4 / 5, 'p': 0.25, 'q': 9 / 32, 'r': 3 / 10, 's': 3 / 8, 't': 2 / 5,
+        'u': 4.0, 'v': 9 / 2, 'w': 24 / 5, 'x': 6.0, 'y': 32 / 5, 'z': 8.0, ' ': 0
     },
     'Pentatonic': {
-        'a': 1.0, 'b': 9/8, 'c': 5/4, 'd': 3/2, 'e': 2.0, 'f': 10/8, 'g': 9/4,
-        'h': 5/2, 'i': 3.0, 'j': 4.0, 'k': 0.5, 'l': 9/16, 'm': 5/8, 'n': 3/4,
-        'o': 1.0, 'p': 0.25, 'q': 9/32, 'r': 5/16, 's': 3/8, 't': 0.5,
-        'u': 4.0, 'v': 9/2, 'w': 5.0, 'x': 6.0, 'y': 8.0, 'z': 10.0, ' ': 0
+        'a': 1.0, 'b': 9 / 8, 'c': 5 / 4, 'd': 3 / 2, 'e': 2.0, 'f': 10 / 8, 'g': 9 / 4,
+        'h': 5 / 2, 'i': 3.0, 'j': 4.0, 'k': 0.5, 'l': 9 / 16, 'm': 5 / 8, 'n': 3 / 4,
+        'o': 1.0, 'p': 0.25, 'q': 9 / 32, 'r': 5 / 16, 's': 3 / 8, 't': 0.5,
+        'u': 4.0, 'v': 9 / 2, 'w': 5.0, 'x': 6.0, 'y': 8.0, 'z': 10.0, ' ': 0
     },
     'Japanese Hirajoshi': {
-        'a': 1.0, 'b': 16/15, 'c': 4/3, 'd': 3/2, 'e': 8/5, 'f': 2.0, 'g': 32/15,
-        'h': 8/3, 'i': 3.0, 'j': 16/5, 'k': 0.5, 'l': 8/15, 'm': 2/3, 'n': 3/4,
-        'o': 4/5, 'p': 0.25, 'q': 4/15, 'r': 1/3, 's': 3/8, 't': 2/5,
-        'u': 4.0, 'v': 64/15, 'w': 16/3, 'x': 6.0, 'y': 32/5, 'z': 8.0, ' ': 0
+        'a': 1.0, 'b': 16 / 15, 'c': 4 / 3, 'd': 3 / 2, 'e': 8 / 5, 'f': 2.0, 'g': 32 / 15,
+        'h': 8 / 3, 'i': 3.0, 'j': 16 / 5, 'k': 0.5, 'l': 8 / 15, 'm': 2 / 3, 'n': 3 / 4,
+        'o': 4 / 5, 'p': 0.25, 'q': 4 / 15, 'r': 1 / 3, 's': 3 / 8, 't': 2 / 5,
+        'u': 4.0, 'v': 64 / 15, 'w': 16 / 3, 'x': 6.0, 'y': 32 / 5, 'z': 8.0, ' ': 0
     },
     'Indian Bhairav': {
-        'a': 1.0, 'b': 16/15, 'c': 5/4, 'd': 4/3, 'e': 3/2, 'f': 8/5, 'g': 15/8,
-        'h': 2.0, 'i': 32/15, 'j': 5/2, 'k': 0.5, 'l': 8/15, 'm': 5/8, 'n': 2/3,
-        'o': 3/4, 'p': 0.25, 'q': 4/15, 'r': 5/16, 's': 1/3, 't': 3/8,
-        'u': 4.0, 'v': 64/15, 'w': 5.0, 'x': 8/3, 'y': 3.0, 'z': 15/4, ' ': 0
+        'a': 1.0, 'b': 16 / 15, 'c': 5 / 4, 'd': 4 / 3, 'e': 3 / 2, 'f': 8 / 5, 'g': 15 / 8,
+        'h': 2.0, 'i': 32 / 15, 'j': 5 / 2, 'k': 0.5, 'l': 8 / 15, 'm': 5 / 8, 'n': 2 / 3,
+        'o': 3 / 4, 'p': 0.25, 'q': 4 / 15, 'r': 5 / 16, 's': 1 / 3, 't': 3 / 8,
+        'u': 4.0, 'v': 64 / 15, 'w': 5.0, 'x': 8 / 3, 'y': 3.0, 'z': 15 / 4, ' ': 0
     },
     'Arabic Hijaz': {
-        'a': 1.0, 'b': 9/8, 'c': 6/5, 'd': 4/3, 'e': 3/2, 'f': 8/5, 'g': 9/5,
-        'h': 2.0, 'i': 9/4, 'j': 12/5, 'k': 0.5, 'l': 9/16, 'm': 3/5, 'n': 2/3,
-        'o': 3/4, 'p': 0.25, 'q': 9/32, 'r': 3/10, 's': 1/3, 't': 3/8,
-        'u': 4.0, 'v': 9/2, 'w': 24/5, 'x': 8/3, 'y': 3.0, 'z': 18/5, ' ': 0
+        'a': 1.0, 'b': 9 / 8, 'c': 6 / 5, 'd': 4 / 3, 'e': 3 / 2, 'f': 8 / 5, 'g': 9 / 5,
+        'h': 2.0, 'i': 9 / 4, 'j': 12 / 5, 'k': 0.5, 'l': 9 / 16, 'm': 3 / 5, 'n': 2 / 3,
+        'o': 3 / 4, 'p': 0.25, 'q': 9 / 32, 'r': 3 / 10, 's': 1 / 3, 't': 3 / 8,
+        'u': 4.0, 'v': 9 / 2, 'w': 24 / 5, 'x': 8 / 3, 'y': 3.0, 'z': 18 / 5, ' ': 0
     },
     'African Kumoi': {
-        'a': 1.0, 'b': 9/8, 'c': 5/4, 'd': 3/2, 'e': 8/5, 'f': 2.0, 'g': 9/4,
-        'h': 5/2, 'i': 3.0, 'j': 16/5, 'k': 0.5, 'l': 9/16, 'm': 5/8, 'n': 3/4,
-        'o': 4/5, 'p': 0.25, 'q': 9/32, 'r': 5/16, 's': 3/8, 't': 2/5,
-        'u': 4.0, 'v': 9/2, 'w': 5.0, 'x': 6.0, 'y': 32/5, 'z': 8.0, ' ': 0
+        'a': 1.0, 'b': 9 / 8, 'c': 5 / 4, 'd': 3 / 2, 'e': 8 / 5, 'f': 2.0, 'g': 9 / 4,
+        'h': 5 / 2, 'i': 3.0, 'j': 16 / 5, 'k': 0.5, 'l': 9 / 16, 'm': 5 / 8, 'n': 3 / 4,
+        'o': 4 / 5, 'p': 0.25, 'q': 9 / 32, 'r': 5 / 16, 's': 3 / 8, 't': 2 / 5,
+        'u': 4.0, 'v': 9 / 2, 'w': 5.0, 'x': 6.0, 'y': 32 / 5, 'z': 8.0, ' ': 0
     },
     'Balinese Pelog': {
-        'a': 1.0, 'b': 35/32, 'c': 5/4, 'd': 21/16, 'e': 3/2, 'f': 7/4, 'g': 2.0,
-        'h': 35/16, 'i': 5/2, 'j': 21/8, 'k': 0.5, 'l': 35/64, 'm': 5/8, 'n': 21/32,
-        'o': 3/4, 'p': 0.25, 'q': 35/128, 'r': 5/16, 's': 21/64, 't': 3/8,
-        'u': 4.0, 'v': 35/8, 'w': 5.0, 'x': 21/4, 'y': 6.0, 'z': 7.0, ' ': 0
+        'a': 1.0, 'b': 35 / 32, 'c': 5 / 4, 'd': 21 / 16, 'e': 3 / 2, 'f': 7 / 4, 'g': 2.0,
+        'h': 35 / 16, 'i': 5 / 2, 'j': 21 / 8, 'k': 0.5, 'l': 35 / 64, 'm': 5 / 8, 'n': 21 / 32,
+        'o': 3 / 4, 'p': 0.25, 'q': 35 / 128, 'r': 5 / 16, 's': 21 / 64, 't': 3 / 8,
+        'u': 4.0, 'v': 35 / 8, 'w': 5.0, 'x': 21 / 4, 'y': 6.0, 'z': 7.0, ' ': 0
     }
 };
 
@@ -82,7 +82,7 @@ function setupXhabarabotMode() {
     scrambleFrequencySlider.addEventListener('input', () => {
         scrambleFrequency = parseInt(scrambleFrequencySlider.value, 10);
         console.log(`Scramble frequency set to: ${scrambleFrequency}ms`);
-        
+
         if (xhabarabotActive) {
             stopScrambling();
             startScrambling();
@@ -159,39 +159,39 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 function playLoop1() {
-    if (!loopPlaying1) return;
+  if (!loopPlaying1) return;
 
-    const input = document.getElementById('lettersInput1').value.toLowerCase();
-    if (!input) return;
+  const input = document.getElementById('lettersInput1').value.toLowerCase();
+  if (!input) return;
 
-    const pattern = rhythmPatterns[activePattern].loopA;
-    const patternIndex = currentPatternIndex % pattern.length;
-    const letterIndex = Math.floor(currentPatternIndex / pattern.length) % input.length;
-    const currentChar = input[letterIndex];
+  const pattern = rhythmPatterns[activePattern].loopA;
+  const patternIndex = currentPatternIndex % pattern.length;
+  const letterIndex = Math.floor(currentPatternIndex / pattern.length) % input.length;
+  const currentChar = input[letterIndex];
 
-    // Skip spaces with proper timing
-    if (currentChar === ' ') {
-        const interval = (60000 / (120 * tempoMultiplier)) * pattern[patternIndex];
-        timeoutID1 = setTimeout(() => {
-            currentPatternIndex++;
-            playLoop1();
-        }, interval);
-        return;
-    }
+  // Skip spaces with proper timing
+  if (currentChar === ' ') {
+      const interval = (60000 / (120 * tempoMultiplier)) * pattern[patternIndex];
+      timeoutID1 = setTimeout(() => {
+          currentPatternIndex++;
+          playLoop1();
+      }, interval);
+      return;
+  }
 
-    // Only play sound if pattern has a beat at this position
-    if (pattern[patternIndex]) {
-        const finalRate = (scales[activeScale][currentChar] || 1) * rateMultiplier;
-        if (sound1 && finalRate > 0) {
-            const source = audioContext.createBufferSource();
-            source.buffer = sound1;
-            source.playbackRate.value = finalRate;
-            source.connect(gainA);
-            source.start();
-        }
-    }
+  // Only play sound if pattern has a beat at this position
+  if (pattern[patternIndex]) {
+      const finalRate = (scales[activeScale][currentChar] || 1) * rateMultiplier;
+      if (sound1 && finalRate > 0) {
+          const source = audioContext.createBufferSource();
+          source.buffer = sound1;
+          source.playbackRate.value = finalRate;
+          source.connect(gainA);
+          source.start();
+      }
+  }
 
-    const interval = (60000 / (120 * tempoMultiplier)) * pattern[patternIndex];
+  const interval = (60000 / (120 * tempoMultiplier)) * pattern[patternIndex];
     timeoutID1 = setTimeout(() => {
         currentPatternIndex++;
         playLoop1();
@@ -237,6 +237,7 @@ function playLoop2() {
         playLoop2();
     }, interval);
 }
+
 
 function setupEventListeners() {
     document.getElementById('loopButton1').addEventListener('click', () => {
@@ -327,11 +328,11 @@ function setupPatternDropdown() {
         activePattern = patternSelect.value;
         console.log(`Rhythm pattern set to: ${activePattern}`);
         if (loopPlaying1 && loopPlaying2) {
-            currentPatternIndex = 0;
+           currentPatternIndex = 0;
             clearTimeout(timeoutID1);
             clearTimeout(timeoutID2);
-            playLoop1();
-            playLoop2();
+           playLoop1();
+           playLoop2();
         }
     });
 }
@@ -494,6 +495,7 @@ function writeString(view, offset, string) {
     for (let i = 0; i < string.length; i++) {
         view.setUint8(offset + i, string.charCodeAt(i));
     }
+}
 
 function downloadBlob(blob, filename) {
     const url = URL.createObjectURL(blob);
