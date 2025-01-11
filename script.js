@@ -143,33 +143,40 @@ function playLoop1() {
     const input = document.getElementById('lettersInput1').value.toLowerCase();
     if (!input) return;
 
-    const currentChar = input[currentPatternIndex % input.length];
+    const pattern = rhythmPatterns[activePattern].loopA;
+    const patternIndex = currentPatternIndex % pattern.length;
+    const letterIndex = Math.floor(currentPatternIndex / pattern.length) % input.length;
+    const currentChar = input[letterIndex];
+
+    // Skip spaces with proper timing
     if (currentChar === ' ') {
-        setTimeout(() => {
+        const interval = (60000 / (120 * tempoMultiplier)) * pattern[patternIndex];
+        timeoutID1 = setTimeout(() => {
             currentPatternIndex++;
             playLoop1();
-        }, 60000 / (120 * tempoMultiplier));
+        }, interval);
         return;
     }
 
-    const finalRate = (scales[activeScale][currentChar] || 1) * rateMultiplier;
-    if (sound1 && finalRate > 0) {
-        const source = audioContext.createBufferSource();
-        source.buffer = sound1;
-        source.playbackRate.value = finalRate;
-        source.connect(gainA);
-        source.start();
+    // Only play sound if pattern has a beat at this position
+    if (pattern[patternIndex]) {
+        const finalRate = (scales[activeScale][currentChar] || 1) * rateMultiplier;
+        if (sound1 && finalRate > 0) {
+            const source = audioContext.createBufferSource();
+            source.buffer = sound1;
+            source.playbackRate.value = finalRate;
+            source.connect(gainA);
+            source.start();
+        }
     }
 
-    const pattern = rhythmPatterns[activePattern].loopA;
-    const interval = (60000 / (120 * tempoMultiplier)) * pattern[currentPatternIndex % pattern.length];
-    timeoutID1 = setTimeout(playLoop1, interval);
-    currentPatternIndex++;
-
-    if (syncActive && loopPlaying2) {
-        clearTimeout(timeoutID2);
-        playLoop2();
-    }
+    const interval = (60000 / (120 * tempoMultiplier)) * pattern[patternIndex];
+    timeoutID1 = setTimeout(() => {
+        if (!syncActive || !loopPlaying2) {
+            currentPatternIndex++;
+        }
+        playLoop1();
+    }, interval);
 }
 
 function playLoop2() {
@@ -178,33 +185,42 @@ function playLoop2() {
     const input = document.getElementById('lettersInput2').value.toLowerCase();
     if (!input) return;
 
-    const currentChar = input[currentPatternIndex % input.length];
+    const pattern = rhythmPatterns[activePattern].loopB;
+    const patternIndex = currentPatternIndex % pattern.length;
+    const letterIndex = Math.floor(currentPatternIndex / pattern.length) % input.length;
+    const currentChar = input[letterIndex];
+
+    // Skip spaces with proper timing
     if (currentChar === ' ') {
-        setTimeout(() => {
+        const interval = (60000 / (120 * tempoMultiplier)) * pattern[patternIndex];
+        timeoutID2 = setTimeout(() => {
             currentPatternIndex++;
             playLoop2();
-        }, 60000 / (120 * tempoMultiplier));
+        }, interval);
         return;
     }
 
-    const finalRate = (scales[activeScale][currentChar] || 1) * rateMultiplier;
-    if (sound2 && finalRate > 0) {
-        const source = audioContext.createBufferSource();
-        source.buffer = sound2;
-        source.playbackRate.value = finalRate;
-        source.connect(gainB);
-        source.start();
+    // Only play sound if pattern has a beat at this position
+    if (pattern[patternIndex]) {
+        const finalRate = (scales[activeScale][currentChar] || 1) * rateMultiplier;
+        if (sound2 && finalRate > 0) {
+            const source = audioContext.createBufferSource();
+            source.buffer = sound2;
+            source.playbackRate.value = finalRate;
+            source.connect(gainB);
+            source.start();
+        }
     }
 
-    const pattern = rhythmPatterns[activePattern].loopB;
-    const interval = (60000 / (120 * tempoMultiplier)) * pattern[currentPatternIndex % pattern.length];
-    timeoutID2 = setTimeout(playLoop2, interval);
-    currentPatternIndex++;
-
-    if (syncActive && loopPlaying1) {
-        clearTimeout(timeoutID1);
-        playLoop1();
-    }
+    const interval = (60000 / (120 * tempoMultiplier)) * pattern[patternIndex];
+    timeoutID2 = setTimeout(() => {
+        if (syncActive && loopPlaying1) {
+            // Let Loop A control the pattern index
+        } else {
+            currentPatternIndex++;
+        }
+        playLoop2();
+    }, interval);
 }
 
 function setupEventListeners() {
@@ -238,57 +254,48 @@ function setupEventListeners() {
         }
     });
 
-    let syncCountdown = null;
-    let syncScheduled = false;
-
     document.getElementById('syncButton').addEventListener('click', () => {
         syncActive = !syncActive;
         const syncButton = document.getElementById('syncButton');
         syncButton.style.backgroundColor = syncActive ? "#0F0" : "#111";
 
         if (syncActive) {
-            // Calculate the total length of both patterns
-            const patternA = rhythmPatterns[activePattern].loopA;
-            const patternB = rhythmPatterns[activePattern].loopB;
-            const patternALength = patternA.length;
-            const patternBLength = patternB.length;
+            // Reset both loops to start fresh
+            const baseInterval = 60000 / (120 * tempoMultiplier);
+            const lettersInput1 = document.getElementById('lettersInput1').value;
+            const lettersInput2 = document.getElementById('lettersInput2').value;
             
-            // Calculate the least common multiple of pattern lengths
-            const lcm = calculateLCM(patternALength, patternBLength);
-            
-            // Wait for current pattern to complete before syncing
-            if (loopPlaying1 || loopPlaying2) {
-                if (!syncScheduled) {
-                    syncScheduled = true;
-                    const remainingSteps = lcm - (currentPatternIndex % lcm);
-                    const baseInterval = 60000 / (120 * tempoMultiplier);
-                    
-                    // Schedule the sync after current pattern completes
+            // Only proceed if we have both loops playing and letters input
+            if (loopPlaying1 && loopPlaying2 && lettersInput1 && lettersInput2) {
+                // Stop current playback
+                clearTimeout(timeoutID1);
+                clearTimeout(timeoutID2);
+                
+                // Calculate pattern cycle lengths
+                const pattern = rhythmPatterns[activePattern];
+                const cycleLength = Math.max(
+                    pattern.loopA.length * lettersInput1.length,
+                    pattern.loopB.length * lettersInput2.length
+                );
+                
+                // Reset pattern index at a musically appropriate point
+                currentPatternIndex = 0;
+                
+                // Restart both loops with proper timing
+                const startTime = audioContext.currentTime + 0.1; // Small delay for scheduling
+                
+                if (loopPlaying1) {
                     setTimeout(() => {
-                        currentPatternIndex = 0;
-                        clearTimeout(timeoutID1);
-                        clearTimeout(timeoutID2);
-                        
-                        // Add a count-in
-                        let count = 4;
-                        syncCountdown = setInterval(() => {
-                            if (count > 0) {
-                                console.log(`Count in: ${count}`);
-                                count--;
-                            } else {
-                                clearInterval(syncCountdown);
-                                if (loopPlaying1) playLoop1();
-                                if (loopPlaying2) playLoop2();
-                                syncScheduled = false;
-                            }
-                        }, baseInterval);
-                    }, remainingSteps * baseInterval);
+                        playLoop1();
+                    }, 100);
+                }
+                
+                if (loopPlaying2) {
+                    setTimeout(() => {
+                        playLoop2();
+                    }, 100);
                 }
             }
-        } else {
-            // Clean up sync-related timers
-            if (syncCountdown) clearInterval(syncCountdown);
-            syncScheduled = false;
         }
     });
     
