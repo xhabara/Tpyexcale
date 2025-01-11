@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TypeXcale</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Share Tech Mono', monospace;
+            background-color: #111;
+            color: #0F0;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            width: 60%;
+            max-width: 800px;
+            padding: 20px;
+            border: 1px solid #0F0;
+            background-color: #222;
+            border-radius: 10px;
+        }
+
+        .section {
+            margin-bottom: 20px;
+        }
+
+        .section-title {
+            font-size: 20px;
+            margin-bottom: 10px;
+            color: #aaa;
+            text-transform: uppercase;
+        }
+
+        .controls-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-bottom: 15px;
+        }
+
+        .input-field, .scale-select, .pattern-select {
+            background-color: #222;
+            color: #0F0;
+            border: 1px solid #0F0;
+            padding: 5px;
+            font-size: 16px;
+            border-radius: 5px;
+            outline: none;
+        }
+
+        .input-field:focus {
+            background-color: #333;
+        }
+
+        .button {
+            background-color: #111;
+            color: #FFF;
+            border: 1px solid #0F0;
+            padding: 8px 12px;
+            cursor: pointer;
+            transition: all 0.3s;
+            border-radius: 5px;
+        }
+
+        .button:hover {
+            background-color: #0F0;
+            color: #111;
+        }
+
+        .slider {
+            -webkit-appearance: none;
+            width: 150px;
+            height: 10px;
+            background: #FF5722;
+            border-radius: 5px;
+            outline: none;
+            opacity: 0.7;
+            transition: opacity 0.2s;
+        }
+
+        .slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 20px;
+            height: 20px;
+            background: #0F0;
+            cursor: pointer;
+            border-radius: 50%;
+        }
+
+        .custom-upload-button {
+            background-color: #111;
+            color: #0F0;
+            border: 1px solid #0F0;
+            padding: 8px 12px;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+
+        .custom-upload-button:hover {
+            background-color: #0F0;
+            color: #111;
+        }
+
+        .start-recording-button {
+            background-color: #FF851B;
+            color: #FFF;
+            border: none;
+            padding: 10px 15px;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+
+        .start-recording-button:hover {
+            background-color: #FFF;
+            color: #FF851B;
+        }
+
+        .file-input {
+            display: none;
+        }
+
+        .dropdown-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .label {
+            color: #aaa;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    
+    <div class="container">
+        <!-- Loop A Controls -->
+        <div class="section">
+            <div class="section-title"></div>
+            <div class="controls-group">
+                <label class="custom-upload-button" for="audioFileA">Upload Sound A</label>
+                <input type="file" id="audioFileA" class="file-input" accept="audio/*">
+                <input type="text" id="lettersInput1" class="input-field" placeholder="Type letters for Loop A">
+            </div>
+            <div class="controls-group">
+                <button id="loopButton1" class="button">PLAY LOOP A</button>
+                <button onclick="scrambleLetters1()" class="button">SCRAMBLE A</button>
+                <button onclick="resetLoop(1)" class="button">RESET A</button>
+                <input type="range" id="panSlider1" class="slider" min="-1" max="1" step="0.1" value="0">
+            </div>
+        </div>
+
+        <!-- Loop B Controls -->
+        <div class="section">
+            <div class="section-title"></div>
+            <div class="controls-group">
+                <label class="custom-upload-button" for="audioFileB">Upload Sound B</label>
+                <input type="file" id="audioFileB" class="file-input" accept="audio/*">
+                <input type="text" id="lettersInput2" class="input-field" placeholder="Type letters for Loop B">
+            </div>
+            <div class="controls-group">
+                <button id="loopButton2" class="button">PLAY LOOP B</button>
+                <button onclick="scrambleLetters2()" class="button">SCRAMBLE B</button>
+                <button onclick="resetLoop(2)" class="button">RESET B</button>
+                <input type="range" id="panSlider2" class="slider" min="-1" max="1" step="0.1" value="0">
+            </div>
+        </div>
+
+        <!-- Dropdowns for Scales and Patterns -->
+        <div class="section">
+            <div class="section-title"></div>
+            <div class="dropdown-container">
+                <label class="label"></label>
+                <select id="scaleSelect" class="scale-select"></select>
+            </div>
+            <div class="dropdown-container">
+                <label class="label"></label>
+                <select id="patternSelect" class="pattern-select"></select>
+            </div>
+            <div class="controls-group">
+                <label class="label">Tempo:</label>
+                <input type="range" id="tempoSlider" class="slider" min="0.25" max="4" step="0.25" value="1" oninput="tempoMultiplier = parseFloat(this.value)">
+                <label class="label">Rate:</label>
+                <input type="range" id="rateSlider" class="slider" min="0.25" max="4" step="0.25" value="1" oninput="rateMultiplier = parseFloat(this.value)">
+                <button id="syncButton" class="button">SYNC</button>
+            </div>
+        </div>
+        <div class="section">
+            <div class="section-title"></div>
+            <div class="controls-group">
+                <button id="xhabarabotButton" class="button">Xhabarabot Mode</button>
+                <label class="label"></label>
+                <input type="range" id="scrambleFrequencySlider" class="slider" min="200" max="2000" step="100" value="1000">
+            </div>
+        </div>
+
+
+        <!-- Recording Controls -->
+        <div class="section">
+            <div class="section-title"></div>
+            <div class="controls-group">
+                <button id="saveButton" class="button start-recording-button">RECORD MIX</button>
+                <button id="saveStemsButton" class="button start-recording-button">RECORD STEMS</button>
+            </div>
+        </div>
+    </div>
+    <script src="https://unpkg.com/@ffmpeg/ffmpeg@0.12.9/dist/ffmpeg.min.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
